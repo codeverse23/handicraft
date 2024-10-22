@@ -64,6 +64,94 @@ module.exports.login = async (req, res) => {
   }
 };
 
+module.exports.forgotPasswordSendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    //var otp = Math.floor(1000 + Math.random() * 9000);
+    var otp = 12345;
+    const findAdmin = await user.findOne({ email: email });
+    if (!findAdmin) {
+      return res.json({
+        status: false,
+        statusCode: 400,
+        message: "Admin Not Found",
+        data: "",
+      });
+    }
+    const name = findAdmin.name;
+    sendOtp(email, otp, name);
+    await user.findOneAndUpdate({ _id: findAdmin._id }, { $set: { otp: otp } });
+    return res.json({
+      status: true,
+      statusCode: 200,
+      message: "mail send successfully",
+      otp: otp,
+    });
+  } catch (err) {
+    return res.json({
+      status: true,
+      message: "Internal Server Error",
+      data: err.message,
+    });
+  }
+};
+
+module.exports.varifyOtp = async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    const findAdmin = await admin.findOne({ email: email });
+    if (!findAdmin) {
+      return res.json({
+        status: true,
+        message: "Admin Not Found",
+        data: "",
+      });
+    }
+    if (findAdmin.otp !== otp) {
+      return res.json({
+        status: false,
+        statusCode: 400,
+        message: "please provide currect otp",
+      });
+    }
+    await admin.findOneAndUpdate(
+      { _id: findAdmin._id },
+      { $set: { password: password } }
+    );
+    return res.json({
+      status: true,
+      statusCode: 200,
+      message: "Password Change Successfully ",
+    });
+  } catch (err) {
+    return res.json({
+      status: true,
+      message: "Internal Server Error",
+      data: err.message,
+    });
+  }
+};
+
+module.exports.adminProfile = async (req, res) => {
+  try {
+    const adminId = req.query.adminId;
+    const findAdmin = await user.findOne({ _id: adminId });
+    return res.json({
+      statusCode: 200,
+      status: true,
+      message: "Admin Profile Shown Successfully",
+      data: findAdmin,
+    });
+  } catch (err) {
+    return res.json({
+      statusCode: 400,
+      status: false,
+      message: "Internal Server Error",
+      data: findAdmin,
+    });
+  }
+};
+
 module.exports.userList = async (req, res) => {
   try {
     const adminId = req.query.adminId;
@@ -130,25 +218,6 @@ module.exports.deleteUser = async (req, res) => {
   }
 };
 
-module.exports.adminProfile = async (req, res) => {
-  try {
-    const adminId = req.query.adminId;
-    const findAdmin = await user.findOne({ _id: adminId });
-    return res.json({
-      statusCode: 200,
-      status: true,
-      message: "Admin Profile Shown Successfully",
-      data: findAdmin,
-    });
-  } catch (err) {
-    return res.json({
-      statusCode: 400,
-      status: false,
-      message: "Internal Server Error",
-      data: findAdmin,
-    });
-  }
-};
 
 module.exports.createNotification = async (req, res) => {
   try {
@@ -335,74 +404,6 @@ module.exports.updateAdminProfile = async (req, res) => {
       status: true,
       statusCode: 400,
       message: err.message,
-    });
-  }
-};
-
-module.exports.forgotPasswordSendOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
-    //var otp = Math.floor(1000 + Math.random() * 9000);
-    var otp = 12345;
-    const findAdmin = await user.findOne({ email: email });
-    if (!findAdmin) {
-      return res.json({
-        status: false,
-        statusCode: 400,
-        message: "Admin Not Found",
-        data: "",
-      });
-    }
-    const name = findAdmin.name;
-    sendOtp(email, otp, name);
-    await user.findOneAndUpdate({ _id: findAdmin._id }, { $set: { otp: otp } });
-    return res.json({
-      status: true,
-      statusCode: 200,
-      message: "mail send successfully",
-      otp: otp,
-    });
-  } catch (err) {
-    return res.json({
-      status: true,
-      message: "Internal Server Error",
-      data: err.message,
-    });
-  }
-};
-
-module.exports.varifyOtp = async (req, res) => {
-  try {
-    const { email, otp, password } = req.body;
-    const findAdmin = await admin.findOne({ email: email });
-    if (!findAdmin) {
-      return res.json({
-        status: true,
-        message: "Admin Not Found",
-        data: "",
-      });
-    }
-    if (findAdmin.otp !== otp) {
-      return res.json({
-        status: false,
-        statusCode: 400,
-        message: "please provide currect otp",
-      });
-    }
-    await admin.findOneAndUpdate(
-      { _id: findAdmin._id },
-      { $set: { password: password } }
-    );
-    return res.json({
-      status: true,
-      statusCode: 200,
-      message: "Password Change Successfully ",
-    });
-  } catch (err) {
-    return res.json({
-      status: true,
-      message: "Internal Server Error",
-      data: err.message,
     });
   }
 };
