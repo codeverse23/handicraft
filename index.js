@@ -43,21 +43,21 @@ app.listen(port, () => {
     console.log(`App is listening on port ${port}`);
 });
 
-// Cron job for marking users as inactive
-cron.schedule('*/5 * * * *', async () => {
-    const now = new Date();
-    console.log("Running 5-minute inactivity check");
+// // Cron job for marking users as inactive
+// cron.schedule('*/5 * * * *', async () => {
+//     const now = new Date();
+//     console.log("Running 5-minute inactivity check");
 
-    const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000); 
+//     const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000); 
 
-    try {
-        const result = await user.updateMany(
-            { lastActive: { $lt: thirtyMinutesAgo }, status: 'active' },
-            { $set: { status: 'inactive' } }
-        );
+//     try {
+//         const result = await user.updateMany(
+//             { lastActive: { $lt: thirtyMinutesAgo }, status: 'active' },
+//             { $set: { status: 'inactive' } }
+//         );
 
-        console.log(`Marked ${result.nModified} users as inactive`);
-    } catch (error) {
-        console.error('Error marking users as inactive:', error);
-    }
-});
+//         console.log(`Marked ${result.nModified} users as inactive`);
+//     } catch (error) {
+//         console.error('Error marking users as inactive:', error);
+//     }
+// });
